@@ -34,7 +34,9 @@ def test_raise_error_if_already_exist_user_with_same_username(client, user):
             'password': 'secret',
         },
     )
+
     assert response.status_code == 400
+    assert response.json()['detail'] == 'Username already registered'
 
 
 def test_read_users(client):
@@ -77,6 +79,7 @@ def test_update_raise_error_if_user_id_is_invalid(client):
     )
 
     assert response.status_code == 404
+    assert response.json()['detail'] == 'User not found'
 
 
 def test_update_raise_error_if_user_id_does_not_exist(client, user):
@@ -90,6 +93,7 @@ def test_update_raise_error_if_user_id_does_not_exist(client, user):
     )
 
     assert response.status_code == 404
+    assert response.json()['detail'] == 'User not found'
 
 
 def test_delete_user(client, user):
@@ -103,6 +107,7 @@ def test_delete_raise_error_if_user_id_is_invalid(client):
     response = client.delete('/users/-1')
 
     assert response.status_code == 404
+    assert response.json()['detail'] == 'User not found'
 
 
 def test_delete_raise_error_if_user_id_does_not_exist(client, user):
