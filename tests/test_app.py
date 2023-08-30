@@ -51,9 +51,10 @@ def test_read_users_with_users(client, user):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/users/1',
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
             'email': 'bob@example.com',
@@ -68,53 +69,84 @@ def test_update_user(client, user):
     }
 
 
-def test_update_raise_error_if_user_id_is_invalid(client):
+def test_update_raise_error_exception_if_user_id_is_diferent(
+    client, user, token
+):
     response = client.put(
-        '/users/-1',
+        f'/users/{user.id + 1}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
             'email': 'bob@example.com',
             'password': 'mynewpassword',
         },
     )
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Not enough permissions'}
 
-    assert response.status_code == 404
-    assert response.json()['detail'] == 'User not found'
+
+# def test_update_raise_error_if_user_id_is_invalid(client):
+#     response = client.put(
+#         '/users/-1',
+#         json={
+#             'username': 'bob',
+#             'email': 'bob@example.com',
+#             'password': 'mynewpassword',
+#         },
+#     )
+
+#     assert response.status_code == 404
+#     assert response.json()['detail'] == 'User not found'
 
 
-def test_update_raise_error_if_user_id_does_not_exist(client, user):
-    response = client.put(
-        '/users/2',
-        json={
-            'username': 'bob',
-            'email': 'bob@example.com',
-            'password': 'mynewpassword',
-        },
+# def test_update_raise_error_if_user_id_does_not_exist(client, user):
+#     response = client.put(
+#         '/users/2',
+#         json={
+#             'username': 'bob',
+#             'email': 'bob@example.com',
+#             'password': 'mynewpassword',
+#         },
+#     )
+
+#     assert response.status_code == 404
+#     assert response.json()['detail'] == 'User not found'
+
+
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
     )
-
-    assert response.status_code == 404
-    assert response.json()['detail'] == 'User not found'
-
-
-def test_delete_user(client, user):
-    response = client.delete('/users/1')
 
     assert response.status_code == 200
     assert response.json() == {'detail': 'User deleted'}
 
 
-def test_delete_raise_error_if_user_id_is_invalid(client):
-    response = client.delete('/users/-1')
+def test_delete_raise_error_exception_if_user_id_is_diferent(
+    client, user, token
+):
+    response = client.delete(
+        f'/users/{user.id + 1}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-    assert response.status_code == 404
-    assert response.json()['detail'] == 'User not found'
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Not enough permissions'}
 
 
-def test_delete_raise_error_if_user_id_does_not_exist(client, user):
-    response = client.delete('/users/2')
+# def test_delete_raise_error_if_user_id_is_invalid(client):
+#     response = client.delete('/users/-1')
 
-    assert response.status_code == 404
-    assert response.json()['detail'] == 'User not found'
+#     assert response.status_code == 404
+#     assert response.json()['detail'] == 'User not found'
+
+
+# def test_delete_raise_error_if_user_id_does_not_exist(client, user):
+#     response = client.delete('/users/2')
+
+#     assert response.status_code == 404
+#     assert response.json()['detail'] == 'User not found'
 
 
 def test_get_token(client, user):
@@ -135,6 +167,19 @@ def test_get_token_raise_error_if_emails_doesnt_exists(client, user):
         data={
             'username': 'email_qualquer@email.com',
             'password': user.clean_password,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()['detail'] == 'Incorrect email or password'
+
+
+def test_get_token_raise_error_if_password_not_match(client, user):
+    response = client.post(
+        '/token',
+        data={
+            'username': user.email,
+            'password': user.clean_password + 'a',
         },
     )
 
