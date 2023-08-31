@@ -1,13 +1,6 @@
 from fast_zero.schemas import UserPublic
 
 
-def test_root_deve_retornar_200_e_ola_mundo(client):
-    response = client.get('/')
-
-    assert response.status_code == 200
-    assert response.json() == {'message': 'Olá Mundo!'}
-
-
 def test_create_user(client):
     response = client.post(
         '/users/',
@@ -133,17 +126,3 @@ def test_delete_raise_error_exception_if_user_id_is_diferent(
 
     assert response.status_code == 400
     assert response.json() == {'detail': 'Not enough permissions'}
-
-
-# def test_delete_raise_error_if_user_id_is_invalid(client):
-#     response = client.delete('/users/-1')
-
-#     assert response.status_code == 404
-#     assert response.json()['detail'] == 'User not found'
-
-
-# def test_delete_raise_error_if_user_id_does_not_exist(client, user):
-#     response = client.delete('/users/2')
-
-#     assert response.status_code == 404
-#     assert response.json()['detail'] == 'User not found'
