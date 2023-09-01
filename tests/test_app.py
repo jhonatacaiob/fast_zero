@@ -29,9 +29,9 @@ def test_raise_error_if_already_exist_user_with_same_username(client, user):
     response = client.post(
         '/users/',
         json={
-            'username': 'Teste',
-            'email': 'teste@test.com',
-            'password': 'secret',
+            'username': user.username,
+            'email': user.email,
+            'password': user.clean_password,
         },
     )
 
@@ -65,7 +65,7 @@ def test_update_user(client, user, token):
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',
-        'id': 1,
+        'id': user.id,
     }
 
 

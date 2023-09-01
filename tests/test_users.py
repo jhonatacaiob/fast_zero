@@ -22,9 +22,9 @@ def test_raise_error_if_already_exist_user_with_same_username(client, user):
     response = client.post(
         '/users/',
         json={
-            'username': 'Teste',
-            'email': 'teste@test.com',
-            'password': 'secret',
+            'username': user.username,
+            'email': user.email,
+            'password': user.password,
         },
     )
 
@@ -58,15 +58,13 @@ def test_update_user(client, user, token):
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',
-        'id': 1,
+        'id': user.id,
     }
 
 
-def test_update_raise_error_exception_if_user_id_is_diferent(
-    client, user, token
-):
+def test_update_user_with_wrong_user(client, other_user, token):
     response = client.put(
-        f'/users/{user.id + 1}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
@@ -116,11 +114,9 @@ def test_delete_user(client, user, token):
     assert response.json() == {'detail': 'User deleted'}
 
 
-def test_delete_raise_error_exception_if_user_id_is_diferent(
-    client, user, token
-):
+def test_delete_user_wrong_user(client, other_user, token):
     response = client.delete(
-        f'/users/{user.id + 1}',
+        f'/users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
 
