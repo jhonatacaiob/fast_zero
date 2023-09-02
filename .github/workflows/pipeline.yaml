@@ -22,6 +22,11 @@ jobs:
 
       - name: Rodar os testes
         run: poetry run task test --cov-report=xml
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY}}
+          ALGORITHM: ${{ secrets.ALGORITHM }}
+          ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
 
       - name: Subir cobertura para o codecov
         uses: codecov/codecov-action@v3
